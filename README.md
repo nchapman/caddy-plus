@@ -13,6 +13,25 @@ A custom Caddy Docker image with additional plugins pre-installed.
 docker pull ghcr.io/nchapman/caddy-plus:latest
 ```
 
+Example docker-compose.yml:
+
+```yaml
+services:
+  caddy:
+    image: ghcr.io/nchapman/caddy-plus:latest
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp" # For HTTP/3 support
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+```
+
 ## Development
 
 To build locally:
