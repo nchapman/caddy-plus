@@ -1,11 +1,12 @@
 # Caddy Plus
 
-A custom Caddy Docker image with additional plugins pre-installed.
+A custom Caddy Docker image with additional plugins pre-installed. Rebuilt weekly to stay current.
 
 ## Included Plugins
 
-- [cache-handler](https://github.com/caddyserver/cache-handler) - HTTP caching handler module for Caddy
-- [caddy-wol](https://github.com/dulli/caddy-wol) - Wake-on-LAN plugin for Caddy
+- [coraza-caddy](https://github.com/corazawaf/coraza-caddy) - Web Application Firewall with OWASP Core Rule Set
+- [cache-handler](https://github.com/caddyserver/cache-handler) - HTTP caching handler module
+- [caddy-wol](https://github.com/dulli/caddy-wol) - Wake-on-LAN plugin
 
 ## Usage
 
@@ -22,7 +23,7 @@ services:
     ports:
       - "80:80"
       - "443:443"
-      - "443:443/udp" # For HTTP/3 support
+      - "443:443/udp"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
@@ -32,13 +33,34 @@ volumes:
   caddy_data:
 ```
 
-## Development
+Example Caddyfile with Coraza WAF:
 
-To build locally:
+```caddyfile
+{
+    order coraza_waf first
+}
 
-```bash
-docker build -t caddy-plus .
+(coraza) {
+    coraza_waf {
+        load_owasp_crs
+        directives `
+            Include @coraza.conf-recommended
+            Include @crs-setup.conf.example
+            Include @owasp_crs/*.conf
+            SecRuleEngine On
+        `
+    }
+}
+
+example.com {
+    import coraza
+    reverse_proxy backend:8080
+}
 ```
+
+## Updates
+
+The image is automatically rebuilt every Sunday at 3am UTC to pull in the latest Caddy and plugin updates.
 
 ## License
 
